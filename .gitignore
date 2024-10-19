@@ -4,3 +4,4 @@ build
 main.spec
 dist
 .idea
+venv

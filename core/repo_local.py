@@ -3,6 +3,10 @@ import re
 from pathlib import Path
 from typing import Dict, Union, List, Tuple, Set
 
+from icecream import ic
+
+from utils.file import get_exclude_files_from_gitignore
+
 
 def save_to_markdown(file_dict: Dict[str, str], markdown_file: str, append: bool = False) -> None:
     """
@@ -40,10 +44,15 @@ def process_files(directory: str,
     :param suffix_filter: 需要过滤的文件后缀，支持 List、tuple 和 set
     :param markdown_file: 输出的 Markdown 文件路径
     """
-    file_dict = { }  # 保存文件名和内容的字典
+    file_dict = {}  # 保存文件名和内容的字典
     count = 0  # 用于统计每处理5个文件保存一次
+    exclude_dirs = get_exclude_files_from_gitignore(directory)
+    ic(exclude_dirs)
 
     for file in Path(directory).rglob('*'):
+        # 跳过要排除的目录及其子文件
+        if any(part in exclude_dirs for part in file.parts):
+            continue
         if file.is_file() and file.suffix in suffix_filter:
             # 组合键为文件夹名+文件名
             key = str(file.relative_to(Path(directory).parent))
@@ -66,6 +75,6 @@ def process_files(directory: str,
 if __name__ == '__main__':
     # 使用示例
     directory = "."  # 当前目录
-    suffix_filter = { '.py', '.md' }  # 需要过滤的后缀，可以是 List, tuple, set
+    suffix_filter = {'.py', '.md'}  # 需要过滤的后缀，可以是 List, tuple, set
     markdown_file = "output.md"  # 输出的 Markdown 文件
     process_files(directory, suffix_filter, markdown_file)
