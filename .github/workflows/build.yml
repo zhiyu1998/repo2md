@@ -1,0 +1,139 @@
+name: Build Executables and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 只在推送标签（如 v1.0, v2.0）时触发发布流程
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable for Windows
+        run: pyinstaller --onefile main.py
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v3
+        with:
+          name: myapp-windows
+          path: dist/main.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable for macOS
+        run: pyinstaller --onefile main.py
+
+      - name: Upload macOS build
+        uses: actions/upload-artifact@v3
+        with:
+          name: myapp-macos
+          path: dist/main
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable for Linux
+        run: pyinstaller --onefile main.py
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v3
+        with:
+          name: myapp-linux
+          path: dist/main
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-windows
+          path: ./release
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-macos
+          path: ./release
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: myapp-linux
+          path: ./release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }} # 用推送的标签名作为 Release 标签
+          release_name: Release ${{ github.ref }} # Release 名称
+          draft: false
+          prerelease: false
+
+      - name: Upload Windows build to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/main.exe
+          asset_name: myapp-windows.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS build to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/main
+          asset_name: myapp-macos
+          asset_content_type: application/octet-stream
+
+      - name: Upload Linux build to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/main
+          asset_name: myapp-linux
+          asset_content_type: application/octet-stream

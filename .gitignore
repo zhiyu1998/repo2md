@@ -1,0 +1,5 @@
+app.log
+*.md
+build
+main.spec
+dist
