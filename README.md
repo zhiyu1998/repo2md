@@ -44,3 +44,10 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## 🖥 开发 && 推送
+
+```shell
+git tag <tag_name>
+
+git push origin --tags
+```
