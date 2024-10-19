@@ -8,7 +8,21 @@
 
 ## 🚀 快速开始
 
-### 安装
+### 直接使用
+
+1. 到 [Release](https://github.com/zhiyu1998/repo2md/releases) 下载最新版本
+
+2. linux 赋予权限
+
+```shell
+chmod 755 myapp-linux && mv myapp-linux repo2md
+```
+
+2. 开始使用
+
+```shell
+./repo2md
+```
 
 ### 手动构建
 
