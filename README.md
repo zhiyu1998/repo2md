@@ -15,13 +15,13 @@
 2. linux 赋予权限
 
 ```shell
-chmod 755 myapp-linux && mv myapp-linux repo2md
+chmod 755 repo2md-linux
 ```
 
 2. 开始使用
 
 ```shell
-./repo2md
+./repo2md-linux
 ```
 
 ### 手动构建
