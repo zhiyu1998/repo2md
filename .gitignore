@@ -3,3 +3,4 @@ app.log
 build
 main.spec
 dist
+.idea
